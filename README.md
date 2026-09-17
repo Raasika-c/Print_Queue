@@ -8,33 +8,34 @@ A real, working, full-stack web application that manages a digital print job que
 
 ## 🖨️ Features
 
-- **User Registration & Login** — JWT-secured REST API, BCrypt password hashing
-- **Print Job Submission** — File upload (PDF/images, max 10MB), cost calculation
-- **FIFO Queue** — Jobs processed in submission order across 3 virtual printers
-- **Virtual Printers** — 3 simulated printers (A, B, C) with IDLE/BUSY/OFFLINE states
-- **Admin Dashboard** — Manage jobs, printers, queue, and view audit logs
-- **Cost Calculation** — COLOR: ₹5/page × copies | B&W: ₹1/page × copies
-- **Audit Logging** — Complete trail of all state-changing actions
-- **Full DevOps Pipeline** — Git → GitHub → Jenkins → Docker → Ansible
+- **JWT Authentication & Security** — Self-registration, BCrypt password hashing, role-based access control (`ROLE_USER`, `ROLE_ADMIN`).
+- **Print Job Management** — Multipart document uploads (PDF, DOCX, PNG, JPG), automatic page calculation, dynamic cost estimation (₹5/Color, ₹1/B&W).
+- **Dynamic Priority & FIFO Queue** — Prioritized scheduling (`HIGH`, `NORMAL`, `LOW`) with FIFO ordering, automatic queue slot recalculation, real-time live positions.
+- **Virtual Hardware Simulation** — Non-blocking background printer (`PRINTER-01`) with realistic page-by-page simulation, progress percentage, and deterministic FSM states (`IDLE`, `PRINTING`, `PAUSED`, `ERROR`, `OFFLINE`).
+- **Admin Management & Audit Trail** — Centralized administration console, 10-metric real-time statistics dashboard, priority override, job cancellation/retry, and `PrintJobHistory` lifecycle auditing.
+- **13 Complete Frontend Pages** — Responsive Bootstrap 5 UI connected to real backend endpoints (`index.html`, `login.html`, `register.html`, `dashboard.html`, `submit-job.html`, `my-jobs.html`, `job-details.html`, `queue.html`, `admin-dashboard.html`, `admin-queue.html`, `users.html`, `printer.html`, `error.html`).
+- **Comprehensive Quality Assurance** — 118 automated tests across a 5-tier test pyramid (100% pass rate, zero failures).
+- **Complete Integrated DevOps Pipeline** — Git ➔ GitHub Webhook ➔ 11-Stage Jenkins Pipeline ➔ Quality Gate ➔ Docker Multi-stage ➔ Ansible Automation ➔ Actuator Health Check.
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Language | Java 21 |
-| Framework | Spring Boot 3.3.4 |
-| Security | Spring Security + JWT (jjwt 0.12.6) |
-| ORM | Spring Data JPA + Hibernate |
-| Database | MySQL 8.0 |
-| Migration | Flyway |
-| Build | Maven 3.9 |
-| Testing | JUnit 5, Mockito, Spring Boot Test |
-| Frontend | HTML + CSS + Vanilla JS |
-| Container | Docker + Docker Compose |
-| CI/CD | Jenkins (Declarative Pipeline) |
-| Config Mgmt | Ansible |
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Language | Java | 21 (LTS) |
+| Framework | Spring Boot | 3.3.4 |
+| Security | Spring Security + JJWT | 6.x / 0.12.6 |
+| Persistence | Spring Data JPA + Hibernate | 6.x |
+| Database | MySQL + Flyway Migrations | 8.0 / 10.x |
+| In-Memory DB | H2 (MySQL Mode) for Testing | 2.x |
+| Build Tool | Apache Maven | 3.9.16 |
+| Testing | JUnit 5, Mockito, MockMvc, AssertJ | 5.x |
+| Frontend | HTML5, CSS3, Bootstrap 5, Vanilla JS | 5.3 |
+| Containers | Docker + Docker Compose | 29.x / 2.x |
+| CI/CD Engine | Jenkins Declarative Pipeline | 2.x |
+| Configuration | Ansible | 2.x |
+| VCS | Git + GitHub Webhooks | — |
 
 ---
 
@@ -88,37 +89,37 @@ java -jar target/digital-print-queue-1.0.0.jar
 
 ---
 
-## 🧪 Running Tests
+## 🧪 Running Tests & Regression Suite
 
 ```bash
-# Run all unit tests
+# Run complete 118-test regression suite
 mvn test
 
-# Run with test report
-mvn test surefire-report:report
+# Run specific test tier
+mvn test -Dtest=PrintQueueE2ETest
+mvn test -Dtest=DatabaseConsistencyTest,PrinterStateConsistencyTest,QueueConsistencyTest
 
-# Compile only
-mvn clean compile
-
-# Full build (skip tests)
-mvn clean package -DskipTests
+# Generate Surefire HTML test report
+mvn surefire-report:report
+# Report output: target/site/surefire-report.html
 ```
 
 ---
 
-## 🐳 Docker
+## 🐳 Docker Containerization
 
 ```bash
-# Build image
-docker build -t digital-print-queue:1.0.0 .
+# Build production multi-stage image
+docker build -t digital-print-queue:latest .
 
-# Run with Docker Compose (app + MySQL)
+# Run application and MySQL with persistent storage
 docker-compose up -d
 
-# Check health
+# Verify container status and health
+docker-compose ps
 curl http://localhost:8080/actuator/health
 
-# Stop
+# Stop containers (preserves upload volume)
 docker-compose down
 ```
 
@@ -132,74 +133,99 @@ digital-print-queue/
 │   ├── main/
 │   │   ├── java/com/printqueue/
 │   │   │   ├── PrintQueueApplication.java
-│   │   │   ├── config/          # SecurityConfig, DataInitializer
-│   │   │   ├── controller/      # AuthController, ...
-│   │   │   ├── dto/             # request/, response/
-│   │   │   ├── entity/          # User, PrintJob, Printer, ...
-│   │   │   ├── exception/       # GlobalExceptionHandler, custom exceptions
-│   │   │   ├── repository/      # Spring Data JPA repositories
-│   │   │   ├── security/        # JWT, UserDetailsService
-│   │   │   └── service/         # UserService, ...
+│   │   │   ├── config/          # SecurityConfig, DataInitializer, AsyncConfig
+│   │   │   ├── controller/      # Auth, PrintJob, Queue, Printer, Admin Controllers
+│   │   │   ├── dto/             # Request & Response DTOs
+│   │   │   ├── entity/          # User, PrintJob, VirtualPrinter, PrintJobHistory
+│   │   │   ├── exception/       # GlobalExceptionHandler, Custom Exceptions
+│   │   │   ├── repository/      # Spring Data JPA Repositories
+│   │   │   ├── security/        # JWT Token Provider & Filter, CustomUserDetailsService
+│   │   │   └── service/         # Business Services & Printer Simulation Engine
 │   │   └── resources/
 │   │       ├── application.properties
 │   │       ├── application-docker.properties
-│   │       └── db/migration/    # Flyway SQL scripts
-│   └── test/
-│       └── java/com/printqueue/ # JUnit 5 tests
-├── ansible/                     # Deployment automation
-├── pom.xml
-├── Dockerfile
-├── docker-compose.yml
-├── Jenkinsfile
-├── .env.example
-├── PROJECT_CONTRACT.md
-├── FEATURE_REGISTRY.md
-├── ARCHITECTURE.md
-├── TESTING.md
-└── CHANGELOG.md
+│   │       ├── db/migration/    # Flyway V1..V5 Migration Scripts
+│   │       └── static/          # 13 Complete Frontend HTML Pages, CSS, & JS
+│   └── test/java/com/printqueue/ # 118 Automated Tests (Levels 1 to 5)
+├── ansible/                     # Ansible Playbooks, Inventory, and Nginx Template
+├── Jenkinsfile                  # 11-Stage Automated CI/CD Pipeline
+├── Dockerfile                   # Multi-Stage Production Container Build
+├── Dockerfile.alpine            # Alpine OS Comparison Image
+├── Dockerfile.ubuntu            # Ubuntu OS Comparison Image
+├── docker-compose.yml           # Multi-Container Compose Orchestration
+└── pom.xml
 ```
 
 ---
 
-## 📋 API Overview
+## 📋 API Reference
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/api/auth/register` | Public | Register new user |
-| POST | `/api/auth/login` | Public | Login, get JWT |
-| GET | `/api/auth/me` | USER | Current user profile |
-| POST | `/api/auth/logout` | Any | Logout |
-| POST | `/api/jobs` | USER | Submit print job |
-| GET | `/api/jobs` | USER | View own jobs |
-| GET | `/api/jobs/{id}` | USER | Job details |
-| DELETE | `/api/jobs/{id}` | USER | Cancel job |
-| GET | `/api/admin/jobs` | ADMIN | All jobs |
-| GET | `/api/admin/printers` | ADMIN | All printers |
-| GET | `/api/admin/stats` | ADMIN | Statistics |
-| GET | `/actuator/health` | Public | Health check |
+| `POST` | `/api/auth/register` | Public | Register new user account |
+| `POST` | `/api/auth/login` | Public | Login and obtain JWT token |
+| `GET` | `/api/auth/me` | USER / ADMIN | Current authenticated user profile |
+| `POST` | `/api/auth/logout` | Any | Discard JWT token |
+| `POST` | `/api/jobs` | USER | Submit print job (multipart file + options) |
+| `GET` | `/api/jobs` | USER | View user's submitted print jobs |
+| `GET` | `/api/jobs/{id}` | USER | View job details and real-time status |
+| `DELETE`| `/api/jobs/{id}` | USER | Cancel submitted/queued print job |
+| `GET` | `/api/jobs/{id}/history` | USER | View audit lifecycle history of a job |
+| `GET` | `/api/queue` | Public | View real-time active print queue |
+| `GET` | `/api/queue/status` | Public | View queue length, paused state, and active jobs |
+| `GET` | `/api/printer/status`| Public | View PRINTER-01 state, progress, and current job |
+| `POST` | `/api/printer/start` | ADMIN | Start printer job processing |
+| `POST` | `/api/printer/pause` | ADMIN | Pause printer during active printing |
+| `POST` | `/api/printer/resume`| ADMIN | Resume printer from paused state |
+| `POST` | `/api/printer/reset` | ADMIN | Reset printer from ERROR/OFFLINE to IDLE |
+| `POST` | `/api/printer/error` | ADMIN | Inject hardware simulation error |
+| `GET` | `/api/admin/users` | ADMIN | List all registered user accounts |
+| `GET` | `/api/admin/jobs` | ADMIN | View all system print jobs with filters |
+| `GET` | `/api/admin/statistics`| ADMIN | Live dashboard statistics across 10 metrics |
+| `PUT` | `/api/admin/jobs/{id}/priority` | ADMIN | Override job priority (HIGH / NORMAL / LOW) |
+| `PUT` | `/api/admin/jobs/{id}/cancel` | ADMIN | Administratively cancel any print job |
+| `PUT` | `/api/admin/jobs/{id}/retry` | ADMIN | Re-queue a failed print job |
+| `GET` | `/actuator/health` | Public | Spring Boot Actuator health status check |
 
 ---
 
-## 🔄 CI/CD Pipeline
+## 🔄 Integrated CI/CD DevOps Pipeline
 
 ```
-Developer → Git Push → GitHub → Jenkins
-  → Checkout → Build → Unit Tests → Integration Tests
-  → Docker Build → Docker Compose Up → Smoke Test
-  → Ansible Deploy → Health Check
+DEVELOPER ──► GIT ──► GITHUB ──► WEBHOOK ──► JENKINS
+                                                │
+ ┌──────────────────────────────────────────────┴───────────────────────────────────────────┐
+ │ 1. Checkout  ──► 2. Build  ──► 3. Unit Tests  ──► 4. Integration Tests  ──► 5. API Tests │
+ │                                                                                          │
+ │ 6. E2E Tests ──► 7. QUALITY GATE (Surefire XML Report & 100% Pass Enforced)              │
+ │                                                                                          │
+ │ 8. Package (JAR) ──► 9. Docker Build ──► 10. Ansible Deploy ──► 11. Health Check (UP)   │
+ └──────────────────────────────────────────────┬───────────────────────────────────────────┘
+                                                ▼
+                                    DEPLOYED APPLICATION
+                                  (http://localhost:8080)
 ```
+
+> **Strict Quality Gate Rule**: If any compilation error or any of the 118 automated tests fail, the pipeline immediately halts. Packaging, Docker image generation, and Ansible container deployment are strictly blocked.
 
 ---
 
-## 📄 Documentation
+## 📄 Complete Project Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md) | Single source of truth |
-| [FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) | Feature tracking |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design & diagrams |
-| [TESTING.md](TESTING.md) | Testing strategy & commands |
-| [CHANGELOG.md](CHANGELOG.md) | Change history |
+| [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md) | Single Source of Truth & Architecture Invariants |
+| [FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) | Feature traceability matrix (F-001 through F-026) |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, component diagrams, & database schema |
+| [DEVOPS_PIPELINE.md](DEVOPS_PIPELINE.md) | Complete End-to-End DevOps Pipeline & Quality Gate Guide |
+| [QA_REPORT.md](QA_REPORT.md) | Automated QA & 118-Test Regression Report |
+| [TESTING.md](TESTING.md) | Testing pyramid hierarchy & command reference |
+| [DOCKER.md](DOCKER.md) | Docker containerization, volume persistence, & OS comparison |
+| [ANSIBLE.md](ANSIBLE.md) | Ansible automation, idempotency, & playbook execution |
+| [JENKINS.md](JENKINS.md) | Jenkins installation, pipeline setup, & credentials |
+| [GITHUB_WEBHOOK.md](GITHUB_WEBHOOK.md) | GitHub Webhook integration & student-lab tunneling |
+| [GIT_WORKFLOW.md](GIT_WORKFLOW.md) | Git branching strategy, operations, & conflict resolution |
+| [CHANGELOG.md](CHANGELOG.md) | Chronological version release history |
 
 ---
 
@@ -208,4 +234,4 @@ Developer → Git Push → GitHub → Jenkins
 **Course**: 23IT723 – DevOps Laboratory  
 **Academic Year**: 2026–2027  
 **Project**: Digital Printing Queue Management System  
-**DevOps Tools**: Git, GitHub, Jenkins, Docker, Ansible  
+**DevOps Tools**: Git, GitHub, Jenkins, Docker, Ansible

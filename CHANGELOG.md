@@ -10,6 +10,25 @@ All notable changes are documented here following [Keep a Changelog](https://kee
 
 ---
 
+## [1.9.0] — Phase 14 — 2026-09-17
+
+### Phase 14 — Complete Integrated DevOps System & Quality Gate ✅
+#### Added
+- **Unified 11-Stage Jenkins CI/CD Pipeline (`Jenkinsfile`)**:
+  - Full automated delivery workflow: Checkout ➔ Build ➔ Unit Tests ➔ Integration Tests ➔ API Tests ➔ E2E & Smoke Tests ➔ Quality Gate ➔ Package ➔ Docker Build ➔ Ansible Deployment ➔ Health Check.
+  - Multi-tiered test execution guaranteeing granular failure detection at the exact architectural layer.
+  - Cross-platform agent support (Linux `sh` / Windows `bat`).
+  - Integrated GitHub Push Webhook trigger (`githubPush()`) and polling fallback (`pollSCM`).
+  - Strict Quality Gate halting downstream stages immediately upon any test or compilation failure.
+- **End-to-End DevOps Architecture Specification (`DEVOPS_PIPELINE.md`)**:
+  - Comprehensive documentation of the end-to-end workflow from Developer push to live Actuator verification.
+  - Formal mathematical specification of the Quality Gate condition.
+  - Documented Step-by-Step Happy Path Success Scenario.
+  - Documented Step-by-Step Failure Scenario detailing the automated Deployment Guard preventing broken artifact releases.
+  - Complete operational reference for manual pipeline reproduction in lab environments.
+
+---
+
 ## [1.8.0] — Phase 13 — 2026-09-17
 
 ### Phase 13 — Ansible Automation ✅

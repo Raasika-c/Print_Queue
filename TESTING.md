@@ -126,25 +126,32 @@ mvn surefire-report:report
 
 ---
 
-## Test Summary (Phase 1, 2, 3 & 4)
+## Test Summary (Complete Regression Suite — Phases 1 to 14)
 
 | Test Class | Level | Tests | Status |
 |-----------|-------|-------|--------|
-| `PrintQueueApplicationTest` | 4 — Integration | 3 | ✅ |
-| `UserRepositoryTest` | 2 — Repository | 15 | ✅ |
-| `UserServiceTest` | 1 — Unit | 18 | ✅ |
-| `PrintJobServiceTest` | 1 — Unit | 5 | ✅ |
-| `QueueServiceTest` | 1 — Unit | 4 | ✅ |
-| `VirtualPrinterServiceTest` | 1 — Unit | 2 | ✅ |
-| `PrintJobHistoryServiceTest` | 1 — Unit | 1 | ✅ |
-| `AdminServiceTest` | 1 — Unit | 4 | ✅ |
-| `AuthControllerTest` | 3 — API | 18 | ✅ |
-| `PrintJobControllerTest` | 3 — API | 2 | ✅ |
-| `QueueControllerTest` | 3 — API | 2 | ✅ |
-| `PrinterControllerTest` | 3 — API | 2 | ✅ |
-| `AdminControllerTest` | 3 — API | 4 | ✅ |
-| `JwtTokenProviderTest` | 1 — Unit | 9 | ✅ |
-| **TOTAL** | | **87** | ✅ |
+| `PrintQueueApplicationTest` | Level 5 — Full Context Integration | 3 | ✅ |
+| `UserRepositoryTest` | Level 2 — Repository / DB | 15 | ✅ |
+| `UserServiceTest` | Level 1 — Unit / Business Logic | 18 | ✅ |
+| `JwtTokenProviderTest` | Level 1 — Security Unit | 9 | ✅ |
+| `PrintJobServiceTest` | Level 1 — Business Logic | 5 | ✅ |
+| `QueueServiceTest` | Level 1 — Queue Scheduling Logic | 4 | ✅ |
+| `VirtualPrinterServiceTest` | Level 1 — Hardware Simulation | 2 | ✅ |
+| `PrintJobHistoryServiceTest` | Level 1 — Audit Log Service | 1 | ✅ |
+| `AdminServiceTest` | Level 1 — Admin Analytics Logic | 4 | ✅ |
+| `DatabaseConsistencyTest` | Level 2 & 3 — Relational Integrity & Cascades | 3 | ✅ |
+| `PrinterStateConsistencyTest` | Level 3 — FSM State Transitions | 4 | ✅ |
+| `QueueConsistencyTest` | Level 3 — Queue Concurrency & Position | 1 | ✅ |
+| `AuthControllerTest` | Level 4 — REST API / Security | 18 | ✅ |
+| `PrintJobControllerTest` | Level 4 — REST API / Multipart | 2 | ✅ |
+| `QueueControllerTest` | Level 4 — REST API / Live Queue | 2 | ✅ |
+| `PrinterControllerTest` | Level 4 — REST API / Printer Control | 2 | ✅ |
+| `AdminControllerTest` | Level 4 — REST API / Admin Authorization | 4 | ✅ |
+| `FrontendPagesIntegrationTest` | Level 5 — Frontend Availability (13 Pages) | 14 | ✅ |
+| `PrintQueueE2ETest` | Level 5 — End-to-End User Journeys | 9 | ✅ |
+| **TOTAL AUTOMATED REGRESSION SUITE** | | **118** | ✅ **100% PASSED** |
+
+> Complete QA details and test matrix documented in [QA_REPORT.md](QA_REPORT.md).
 
 ---
 
