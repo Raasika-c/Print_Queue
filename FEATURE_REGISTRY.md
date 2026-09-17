@@ -153,7 +153,7 @@
 | F-021 | Admin Dashboard UI | Frontend | 7 | 🟢 COMPLETE |
 | F-022 | Docker Containerization | DevOps | 12 | 🟢 COMPLETE |
 | F-023 | Jenkins CI Pipeline | DevOps | 10 | 🟢 COMPLETE |
-| F-024 | Ansible Deployment Automation | DevOps | 13 | 🔴 NOT STARTED |
+| F-024 | Ansible Deployment Automation | DevOps | 13 | 🟢 COMPLETE |
 | F-025 | Health Monitoring | Operations | 1 | 🟢 COMPLETE |
 
 ---
@@ -175,4 +175,5 @@
 | Phase 10 | Jenkins CI/CD Pipeline | 🟢 COMPLETE |
 | Phase 11 | GitHub Webhook Integration | 🟢 COMPLETE |
 | Phase 12 | Docker Containerization | 🟢 COMPLETE |
+| Phase 13 | Ansible Automation | 🟢 COMPLETE |
 

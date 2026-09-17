@@ -1,0 +1,104 @@
+---
+# ==============================================================================
+# Application Container Deployment & Health Verification Playbook
+# Role: Manages persistent volumes, environment, containers, and health checks
+# ==============================================================================
+- name: Deploy Digital Print Queue Microservices
+  hosts: appservers
+  become: true
+
+  vars:
+    deploy_dir: /opt/digital-print-queue
+    app_port: 8080
+    mysql_port: 3306
+    db_name: digital_print_queue
+    db_user: printuser
+    db_password: printpass
+    db_root_password: rootpassword
+    jwt_secret: ProductionSecretKey2026DigitalPrintQueueManagementSystem23IT723Lab
+    jwt_expiry_ms: 86400000
+
+  tasks:
+    - name: Ensure deployment and upload directories exist on host
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "10001"
+        group: "10001"
+        mode: '0755'
+      loop:
+        - "{{ deploy_dir }}"
+        - "{{ deploy_dir }}/uploads"
+
+    - name: Create Docker bridge network for isolated service communication
+      community.docker.docker_network:
+        name: printqueue_network
+        state: present
+      ignore_errors: true
+
+    - name: Create persistent storage volume for user document uploads
+      community.docker.docker_volume:
+        name: printqueue_uploads
+        state: present
+      ignore_errors: true
+
+    - name: Create persistent storage volume for MySQL relational database
+      community.docker.docker_volume:
+        name: printqueue_mysql_data
+        state: present
+      ignore_errors: true
+
+    - name: Deploy production docker-compose configuration
+      ansible.builtin.copy:
+        src: ../docker-compose.yml
+        dest: "{{ deploy_dir }}/docker-compose.yml"
+        mode: '0644'
+
+    - name: Deploy environment configuration file (.env)
+      ansible.builtin.copy:
+        dest: "{{ deploy_dir }}/.env"
+        mode: '0600'
+        content: |
+          # Managed by Ansible — Production Environment Configuration
+          SPRING_PROFILES_ACTIVE=docker
+          DB_HOST=mysql
+          DB_PORT={{ mysql_port }}
+          DB_NAME={{ db_name }}
+          DB_USER={{ db_user }}
+          DB_PASSWORD={{ db_password }}
+          MYSQL_ROOT_PASSWORD={{ db_root_password }}
+          JWT_SECRET={{ jwt_secret }}
+          JWT_EXPIRY_MS={{ jwt_expiry_ms }}
+
+    - name: Pull and start multi-container stack via Docker Compose
+      ansible.builtin.command:
+        cmd: docker compose up -d --remove-orphans
+        chdir: "{{ deploy_dir }}"
+      register: compose_up_result
+      changed_when: "'Started' in compose_up_result.stdout or 'Creating' in compose_up_result.stdout"
+
+    - name: Wait for MySQL and Spring Boot services to become healthy
+      ansible.builtin.pause:
+        seconds: 15
+
+    - name: Automated Health Check Verification
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ app_port }}/actuator/health"
+        method: GET
+        status_code: 200
+        return_content: true
+      register: health_response
+      until: health_response.status == 200 and 'UP' in health_response.content
+      retries: 10
+      delay: 5
+
+    - name: Display Application Health Status
+      ansible.builtin.debug:
+        msg:
+          - "============================================================"
+          - " Application Health Check: PASSED (Status 200 OK)"
+          - " Actuator Payload: {{ health_response.json }}"
+          - " Reverse Proxy Gateway: http://localhost"
+          - " Direct Application Port: http://localhost:{{ app_port }}"
+          - " Persistent Upload Volume: printqueue_uploads -> /app/uploads"
+          - "============================================================"

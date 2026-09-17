@@ -1,0 +1,46 @@
+# ==============================================================================
+# Nginx Reverse Proxy Configuration Template for Digital Print Queue
+# Managed by Ansible — Do NOT edit manually on target host
+# ==============================================================================
+
+server {
+    listen {{ web_port | default(80) }};
+    server_name {{ server_name | default('_') }};
+
+    # Maximum upload size for print document submissions (supports up to 20MB)
+    client_max_body_size 20M;
+
+    # Logging
+    access_log /var/log/nginx/dpq_access.log;
+    error_log /var/log/nginx/dpq_error.log warn;
+
+    # Static compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+
+    location / {
+        proxy_pass http://127.0.0.1:{{ app_port | default(8080) }};
+        proxy_http_version 1.1;
+
+        # Standard Proxy Headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts for background print simulations & long uploads
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
+
+        # WebSocket support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # Health check bypass
+    location /healthz {
+        proxy_pass http://127.0.0.1:{{ app_port | default(8080) }}/actuator/health;
+        access_log off;
+    }
+}

@@ -1,0 +1,68 @@
+---
+# ==============================================================================
+# Web Server Installation & Reverse Proxy Configuration Playbook
+# Role: Installs and configures Nginx reverse proxy pointing to Spring Boot
+# ==============================================================================
+- name: Configure Web Server Reverse Proxy
+  hosts: webservers
+  become: true
+
+  vars:
+    web_port: 80
+    app_port: 8080
+
+  tasks:
+    - name: Update apt package cache (Ubuntu/Debian)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Install Nginx Web Server
+      ansible.builtin.package:
+        name: nginx
+        state: present
+
+    - name: Remove default Nginx welcome page configuration
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Reload Nginx
+
+    - name: Deploy Digital Print Queue reverse proxy configuration
+      ansible.builtin.template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/digital-print-queue.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reload Nginx
+
+    - name: Enable Digital Print Queue site in Nginx
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/digital-print-queue.conf
+        dest: /etc/nginx/sites-enabled/digital-print-queue.conf
+        state: link
+      notify: Reload Nginx
+
+    - name: Validate Nginx configuration syntax
+      ansible.builtin.command:
+        cmd: nginx -t
+      changed_when: false
+
+    - name: Ensure Nginx service is running and enabled on boot
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Reload Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted

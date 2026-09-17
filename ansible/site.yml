@@ -1,0 +1,19 @@
+---
+# ==============================================================================
+# Master Site Playbook — Digital Printing Queue Management System
+# Academic Year 2026–2027 • 23IT723 DevOps Laboratory
+# Execution Command: ansible-playbook -i inventory.ini site.yml
+# ==============================================================================
+
+- name: Master Infrastructure & Application Orchestration
+  hosts: all
+  gather_facts: true
+
+# Stage 1: Setup and verify container runtime
+- import_playbook: docker.yml
+
+# Stage 2: Deploy database, application containers, volumes, and verify health
+- import_playbook: deploy.yml
+
+# Stage 3: Setup and configure Nginx reverse proxy web server
+- import_playbook: webserver.yml

@@ -10,6 +10,21 @@ All notable changes are documented here following [Keep a Changelog](https://kee
 
 ---
 
+## [1.8.0] — Phase 13 — 2026-09-17
+
+### Phase 13 — Ansible Automation ✅
+#### Added
+- **Ansible Automation Suite (`ansible/`)**:
+  - `inventory.ini`: Node grouping (`appservers`, `webservers`, `dbservers`) with centralized environment variables.
+  - `site.yml`: Master orchestration playbook importing container, application, and web server stages.
+  - `docker.yml`: Idempotent installation and verification of Docker Engine, Docker Compose, and Python Docker SDK.
+  - `webserver.yml`: Installs and configures Nginx reverse proxy routing port 80 to Spring Boot port 8080.
+  - `deploy.yml`: Deploys application and MySQL containers, provisions persistent volume `printqueue_uploads`, sets `.env`, and executes automated `/actuator/health` verification.
+  - `templates/nginx.conf.j2`: Jinja2 parameterized Nginx reverse proxy template supporting up to 20MB file uploads.
+- **`ANSIBLE.md`**: Comprehensive operational manual documenting Inventory, Playbook, Tasks, Variables, Handlers, Idempotency proof, Docker management, and deployment verification.
+
+---
+
 ## [1.7.0] — Phase 12 — 2026-09-17
 
 ### Phase 12 — Docker Containerization ✅

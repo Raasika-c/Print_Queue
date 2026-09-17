@@ -1,0 +1,59 @@
+---
+# ==============================================================================
+# Docker Engine Installation & Host Verification Playbook
+# Role: Prepares container runtime environment across target nodes
+# ==============================================================================
+- name: Setup & Verify Docker Engine Environment
+  hosts: appservers
+  become: true
+
+  tasks:
+    - name: Install prerequisite packages
+      ansible.builtin.package:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - python3-pip
+        state: present
+
+    - name: Install Docker and Docker Compose Plugin
+      ansible.builtin.package:
+        name:
+          - docker.io
+          - docker-compose-v2
+        state: present
+
+    - name: Ensure Python Docker SDK is installed for Ansible module integration
+      ansible.builtin.pip:
+        name:
+          - docker
+          - requests
+        state: present
+      ignore_errors: true
+
+    - name: Ensure Docker daemon service is started and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Verify Docker version on target host
+      ansible.builtin.command:
+        cmd: docker --version
+      register: docker_version_output
+      changed_when: false
+
+    - name: Display Docker version
+      ansible.builtin.debug:
+        msg: "Target host is running {{ docker_version_output.stdout }}"
+
+    - name: Verify Docker Compose version
+      ansible.builtin.command:
+        cmd: docker compose version
+      register: compose_version_output
+      changed_when: false
+
+    - name: Display Docker Compose version
+      ansible.builtin.debug:
+        msg: "Target host is running {{ compose_version_output.stdout }}"
