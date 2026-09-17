@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Print Job - Digital Print Queue</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/index.html">
+                <i class="bi bi-printer-fill me-2 text-primary"></i>Digital Print<span>Queue</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/my-jobs.html">My Jobs</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/submit-job.html">Submit Job</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/queue.html">Live Queue</a></li>
+                </ul>
+                <ul class="navbar-nav" id="nav-auth-section"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 bg-primary-subtle text-primary rounded-circle me-3">
+                            <i class="bi bi-cloud-arrow-up fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0">Submit Print Order</h3>
+                            <p class="text-muted small mb-0">Upload documents and customize print preferences</p>
+                        </div>
+                    </div>
+
+                    <div id="submit-alert" class="alert alert-danger d-none" role="alert"></div>
+
+                    <form id="jobForm">
+                        <!-- File Upload -->
+                        <div class="mb-4">
+                            <label for="docFile" class="form-label fw-semibold">Select Document <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="docFile" required accept=".pdf,.doc,.docx,.txt">
+                            <div class="form-text small">Accepted formats: PDF, DOC, DOCX, TXT (Maximum file size: 10 MB)</div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Page count -->
+                            <div class="col-md-6">
+                                <label for="numberOfPages" class="form-label fw-semibold">Number of Pages <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="numberOfPages" min="1" max="500" value="1" required>
+                                <div class="form-text small">Single-copy page count (1 to 500)</div>
+                            </div>
+                            <!-- Copies -->
+                            <div class="col-md-6">
+                                <label for="numberOfCopies" class="form-label fw-semibold">Number of Copies <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="numberOfCopies" min="1" max="50" value="1" required>
+                                <div class="form-text small">Number of sets (1 to 50)</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Color Mode -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Color Mode</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="colorMode" id="colorBw" value="BLACK_WHITE" checked>
+                                        <label class="form-check-label" for="colorBw">
+                                            Black & White <span class="badge bg-secondary-subtle text-secondary">₹1.00/pg</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="colorMode" id="colorCol" value="COLOR">
+                                        <label class="form-check-label" for="colorCol">
+                                            Color <span class="badge bg-primary-subtle text-primary">₹5.00/pg</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Paper Size -->
+                            <div class="col-md-6">
+                                <label for="paperSize" class="form-label fw-semibold">Paper Size</label>
+                                <select class="form-select" id="paperSize">
+                                    <option value="A4" selected>A4 (Standard)</option>
+                                    <option value="A3">A3 (Large)</option>
+                                    <option value="LETTER">Letter</option>
+                                    <option value="LEGAL">Legal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Orientation -->
+                            <div class="col-md-6">
+                                <label for="orientation" class="form-label fw-semibold">Orientation</label>
+                                <select class="form-select" id="orientation">
+                                    <option value="PORTRAIT" selected>Portrait</option>
+                                    <option value="LANDSCAPE">Landscape</option>
+                                </select>
+                            </div>
+
+                            <!-- Priority -->
+                            <div class="col-md-6">
+                                <label for="priority" class="form-label fw-semibold">Queue Priority</label>
+                                <select class="form-select" id="priority">
+                                    <option value="LOW">Low (Back of queue)</option>
+                                    <option value="NORMAL" selected>Normal (Standard)</option>
+                                    <option value="HIGH">High (Priority processing)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Duplex Toggle -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="duplex">
+                                <label class="form-check-label fw-semibold" for="duplex">Double-sided Printing (Duplex)</label>
+                            </div>
+                        </div>
+
+                        <!-- Live Cost Estimation Box -->
+                        <div class="p-3 bg-light rounded border mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted small d-block">Estimated Job Cost</span>
+                                    <span class="small text-secondary" id="costBreakdown">1 page × 1 copy @ ₹1.00/page</span>
+                                </div>
+                                <div>
+                                    <h3 class="fw-bold text-primary mb-0" id="estimatedCost">₹1.00</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/dashboard.html" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" id="submitBtn" class="btn btn-primary px-4 fw-semibold">
+                                <span id="submitSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+                                Confirm & Submit Job
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        requireAuth();
+
+        function calculateCost() {
+            const pages = parseInt(document.getElementById('numberOfPages').value) || 1;
+            const copies = parseInt(document.getElementById('numberOfCopies').value) || 1;
+            const isColor = document.getElementById('colorCol').checked;
+            const rate = isColor ? 5.00 : 1.00;
+
+            const totalPages = pages * copies;
+            const totalCost = totalPages * rate;
+
+            document.getElementById('estimatedCost').innerText = `₹${totalCost.toFixed(2)}`;
+            document.getElementById('costBreakdown').innerText = 
+                `${pages} pages × ${copies} copies (${totalPages} total) @ ₹${rate.toFixed(2)}/pg`;
+        }
+
+        document.getElementById('numberOfPages').addEventListener('input', calculateCost);
+        document.getElementById('numberOfCopies').addEventListener('input', calculateCost);
+        document.querySelectorAll('input[name="colorMode"]').forEach(r => r.addEventListener('change', calculateCost));
+
+        document.getElementById('jobForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('docFile');
+            const alertEl = document.getElementById('submit-alert');
+            const btn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('submitSpinner');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alertEl.innerText = 'Please select a file to upload.';
+                alertEl.classList.remove('d-none');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const pages = parseInt(document.getElementById('numberOfPages').value);
+            const copies = parseInt(document.getElementById('numberOfCopies').value);
+            const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
+            const paperSize = document.getElementById('paperSize').value;
+            const orientation = document.getElementById('orientation').value;
+            const priority = document.getElementById('priority').value;
+            const duplex = document.getElementById('duplex').checked;
+
+            const jobDetails = {
+                numberOfPages: pages,
+                numberOfCopies: copies,
+                colorMode: colorMode,
+                paperSize: paperSize,
+                orientation: orientation,
+                priority: priority,
+                duplex: duplex
+            };
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('jobDetails', new Blob([JSON.stringify(jobDetails)], { type: 'application/json' }));
+
+            alertEl.classList.add('d-none');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            try {
+                const token = getToken();
+                const res = await fetch('/api/jobs', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.message || 'Failed to submit print job');
+                }
+
+                showToast(`Job ${data.jobNumber} successfully submitted!`, 'success');
+                setTimeout(() => {
+                    window.location.href = `/job-details.html?id=${data.id}`;
+                }, 600);
+
+            } catch (err) {
+                alertEl.innerText = err.message;
+                alertEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        });
+
+        calculateCost();
+    </script>
+</body>
+</html>

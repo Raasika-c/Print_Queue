@@ -1,0 +1,65 @@
+# Git ignore rules for Digital Printing Queue Management System
+
+# ---- Build output ----
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# ---- Maven ----
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.eclipse/
+.classpath
+.project
+.settings/
+*.launch
+*.sts4-cache
+
+# ---- VS Code ----
+.vscode/
+*.code-workspace
+
+# ---- Environment / Secrets ----
+.env
+*.env.local
+*.env.production
+# Keep .env.example (it's safe — no real secrets)
+!.env.example
+
+# ---- File uploads ----
+uploads/
+test-uploads/
+
+# ---- Logs ----
+logs/
+*.log
+spring.log
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Docker ----
+docker-data/
+
+# ---- Node (if any frontend tooling added later) ----
+node_modules/
+npm-debug.log*
+
+# ---- Test coverage reports ----
+**/site/jacoco/
+
+# ---- Compiled Python (ansible) ----
+__pycache__/
+*.pyc
+*.pyo

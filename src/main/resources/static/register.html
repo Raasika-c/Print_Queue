@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Digital Print Queue</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/index.html">
+                <i class="bi bi-printer-fill me-2 text-primary"></i>Digital Print<span>Queue</span>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/login.html">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-auto py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card shadow-sm p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success mb-2">
+                            <i class="bi bi-person-plus fs-2"></i>
+                        </div>
+                        <h2 class="fw-bold">Create Account</h2>
+                        <p class="text-muted small">Join the Digital Printing Queue Network</p>
+                    </div>
+
+                    <div id="register-alert" class="alert alert-danger d-none" role="alert"></div>
+
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" required minlength="2" maxlength="100" placeholder="John Doe">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" required placeholder="john@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="mobile" class="form-label">Mobile Number <span class="text-muted small">(Optional, 10 digits)</span></label>
+                            <input type="tel" class="form-control" id="mobile" pattern="^[0-9]{10}$" placeholder="9876543210">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="password" required minlength="8" placeholder="••••••••">
+                            <div class="form-text small">Minimum 8 characters with at least one uppercase, lowercase, digit, and special character (@$!%*?&).</div>
+                        </div>
+                        <button type="submit" id="registerBtn" class="btn btn-success w-100 py-2 fw-semibold">
+                            <span id="regSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>
+                            Register Account
+                        </button>
+                    </form>
+
+                    <div class="mt-4 pt-3 border-top text-center small text-muted">
+                        Already have an account? <a href="/login.html" class="text-primary text-decoration-none fw-semibold">Sign In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim() || null;
+            const password = document.getElementById('password').value;
+
+            const alertEl = document.getElementById('register-alert');
+            const btn = document.getElementById('registerBtn');
+            const spinner = document.getElementById('regSpinner');
+
+            alertEl.classList.add('d-none');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, mobile, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    const msg = data.message || (data.errors ? Object.values(data.errors).join(', ') : 'Registration failed');
+                    throw new Error(msg);
+                }
+
+                setAuth(data.token, {
+                    id: data.userId,
+                    name: data.name,
+                    email: data.email,
+                    role: data.role
+                });
+
+                showToast('Registration successful! Welcome, ' + data.name, 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 500);
+
+            } catch (err) {
+                alertEl.innerText = err.message;
+                alertEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

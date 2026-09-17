@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Digital Print Queue</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/index.html">
+                <i class="bi bi-shield-lock-fill me-2 text-danger"></i>Digital Print<span>Admin</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="/admin-dashboard.html">Overview</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin-queue.html">Queue Management</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/printer.html">Virtual Printer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/users.html">User Directory</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/queue.html">Public Queue</a></li>
+                </ul>
+                <ul class="navbar-nav" id="nav-auth-section"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge bg-danger mb-1">SYSTEM ADMINISTRATOR</span>
+                <h2 class="fw-bold mb-0">System Control Center</h2>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/admin-queue.html" class="btn btn-primary">
+                    <i class="bi bi-sliders me-1"></i> Manage Queue
+                </a>
+                <a href="/printer.html" class="btn btn-outline-dark">
+                    <i class="bi bi-printer me-1"></i> Printer Simulator
+                </a>
+            </div>
+        </div>
+
+        <!-- 10 Primary Metric Cards Required by Phase 6 & 7 -->
+        <div class="row g-3 mb-4">
+            <!-- Total Users -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Total Users</span>
+                    <h3 class="fw-bold text-dark my-1" id="stat-users">0</h3>
+                    <i class="bi bi-people text-secondary"></i>
+                </div>
+            </div>
+            <!-- Total Jobs -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Total Jobs</span>
+                    <h3 class="fw-bold text-dark my-1" id="stat-jobs">0</h3>
+                    <i class="bi bi-files text-secondary"></i>
+                </div>
+            </div>
+            <!-- Queued -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Queued</span>
+                    <h3 class="fw-bold text-warning my-1" id="stat-queued">0</h3>
+                    <i class="bi bi-hourglass-split text-warning"></i>
+                </div>
+            </div>
+            <!-- Printing -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Printing</span>
+                    <h3 class="fw-bold text-primary my-1" id="stat-printing">0</h3>
+                    <i class="bi bi-printer text-primary"></i>
+                </div>
+            </div>
+            <!-- Completed -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Completed</span>
+                    <h3 class="fw-bold text-success my-1" id="stat-completed">0</h3>
+                    <i class="bi bi-check-circle text-success"></i>
+                </div>
+            </div>
+            <!-- Cancelled -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Cancelled</span>
+                    <h3 class="fw-bold text-secondary my-1" id="stat-cancelled">0</h3>
+                    <i class="bi bi-x-circle text-secondary"></i>
+                </div>
+            </div>
+            <!-- Failed -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Failed</span>
+                    <h3 class="fw-bold text-danger my-1" id="stat-failed">0</h3>
+                    <i class="bi bi-exclamation-triangle text-danger"></i>
+                </div>
+            </div>
+            <!-- Current Queue Length -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Active Queue Length</span>
+                    <h3 class="fw-bold text-info my-1" id="stat-queue-len">0</h3>
+                    <i class="bi bi-list-ol text-info"></i>
+                </div>
+            </div>
+            <!-- Total Pages -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Total Pages Printed</span>
+                    <h3 class="fw-bold text-success my-1" id="stat-pages">0</h3>
+                    <i class="bi bi-file-earmark-check text-success"></i>
+                </div>
+            </div>
+            <!-- Total Copies -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card stat-card p-3 text-center">
+                    <span class="text-muted small">Total Copies Printed</span>
+                    <h3 class="fw-bold text-success my-1" id="stat-copies">0</h3>
+                    <i class="bi bi-copy text-success"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Admin Modules -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card h-100 p-4 border-primary">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-sliders fs-2 text-primary me-3"></i>
+                        <div>
+                            <h5 class="fw-bold mb-0">Queue Operations</h5>
+                            <span class="small text-muted">Manage active print jobs</span>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Adjust priorities (HIGH/NORMAL/LOW), cancel stalled jobs, or retry failed items.</p>
+                    <a href="/admin-queue.html" class="btn btn-outline-primary mt-auto">Open Queue Manager</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 border-success">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-printer fs-2 text-success me-3"></i>
+                        <div>
+                            <h5 class="fw-bold mb-0">Virtual Printer</h5>
+                            <span class="small text-muted">PRINTER-01 state control</span>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Start engine, trigger manual pause/resume, handle error recovery, or reset states.</p>
+                    <a href="/printer.html" class="btn btn-outline-success mt-auto">Open Printer Control</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 border-info">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-people fs-2 text-info me-3"></i>
+                        <div>
+                            <h5 class="fw-bold mb-0">User Directory</h5>
+                            <span class="small text-muted">Registered accounts</span>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Review all registered accounts, roles (ADMIN/USER), status (ACTIVE/INACTIVE), and history.</p>
+                    <a href="/users.html" class="btn btn-outline-info mt-auto">View User Directory</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Recent Print Jobs -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0"><i class="bi bi-journals me-2 text-primary"></i>Global Recent Print Jobs</h5>
+                <a href="/admin-queue.html" class="btn btn-sm btn-outline-primary">Manage All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Job Number</th>
+                            <th>User ID</th>
+                            <th>Document</th>
+                            <th>Pages</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Cost</th>
+                            <th>Submitted</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-jobs-tbody">
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading jobs...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        requireAuth(true); // Admin only
+
+        async function loadAdminDashboard() {
+            try {
+                // Fetch stats
+                const stats = await apiFetch('/admin/statistics');
+                if (stats) {
+                    document.getElementById('stat-users').innerText = stats.totalUsers;
+                    document.getElementById('stat-jobs').innerText = stats.totalJobs;
+                    document.getElementById('stat-queued').innerText = stats.queuedJobs;
+                    document.getElementById('stat-printing').innerText = stats.printingJobs;
+                    document.getElementById('stat-completed').innerText = stats.completedJobs;
+                    document.getElementById('stat-cancelled').innerText = stats.cancelledJobs;
+                    document.getElementById('stat-failed').innerText = stats.failedJobs;
+                    document.getElementById('stat-queue-len').innerText = stats.currentQueueLength;
+                    document.getElementById('stat-pages').innerText = stats.totalPagesPrinted;
+                    document.getElementById('stat-copies').innerText = stats.totalCopiesPrinted;
+                }
+            } catch (err) {
+                showToast('Failed to load statistics: ' + err.message, 'danger');
+            }
+
+            try {
+                // Fetch recent jobs
+                const jobs = await apiFetch('/admin/jobs');
+                const tbody = document.getElementById('admin-jobs-tbody');
+                if (!jobs || jobs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No jobs recorded in the system.</td></tr>';
+                    return;
+                }
+
+                const recent = jobs.slice(0, 8);
+                tbody.innerHTML = recent.map(j => `
+                    <tr>
+                        <td class="fw-bold"><a href="/job-details.html?id=${j.id}" class="text-decoration-none">${j.jobNumber}</a></td>
+                        <td><span class="badge bg-light text-dark border">#${j.userId}</span></td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 170px;" title="${j.documentName}">
+                                ${j.documentName}
+                            </div>
+                        </td>
+                        <td>${j.totalPages}</td>
+                        <td><span class="badge badge-priority-${j.priority}">${j.priority}</span></td>
+                        <td><span class="badge badge-status badge-${j.status}">${j.status}</span></td>
+                        <td class="text-secondary">${formatCost(j.estimatedCost)}</td>
+                        <td class="small text-muted">${formatDate(j.submittedAt)}</td>
+                    </tr>
+                `).join('');
+
+            } catch (err) {
+                document.getElementById('admin-jobs-tbody').innerHTML = `
+                    <tr><td colspan="8" class="text-center text-danger py-4">${err.message}</td></tr>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAdminDashboard);
+    </script>
+</body>
+</html>
