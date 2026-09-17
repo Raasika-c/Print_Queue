@@ -9,9 +9,9 @@ services:
     container_name: dpq-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: digital_print_queue
-      MYSQL_USER: printuser
-      MYSQL_PASSWORD: printpass
+      MYSQL_DATABASE: printqueue_db
+      MYSQL_USER: printqueue_user
+      MYSQL_PASSWORD: printqueue_pass
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:
       - "3306:3306"
@@ -20,7 +20,7 @@ services:
     networks:
       - printqueue_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "printuser", "-pprintpass"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "printqueue_user", "-pprintqueue_pass"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,9 +42,10 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_NAME: digital_print_queue
-      DB_USER: printuser
-      DB_PASSWORD: printpass
+      DB_NAME: printqueue_db
+      DB_USERNAME: printqueue_user
+      DB_USER: printqueue_user
+      DB_PASSWORD: printqueue_pass
       JWT_SECRET: ProductionGradeSecretKey2026DigitalPrintQueueManagementSystem23IT723Lab
       JWT_EXPIRY_MS: 86400000
     volumes:
