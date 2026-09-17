@@ -5,10 +5,21 @@
 -- ================================================================
 
 ALTER TABLE print_jobs
+    DROP CHECK chk_page_count,
+    DROP CHECK chk_copies;
+
+ALTER TABLE print_jobs
     RENAME COLUMN page_count TO number_of_pages;
 
 ALTER TABLE print_jobs
     RENAME COLUMN copies TO number_of_copies;
+
+ALTER TABLE print_jobs
+    RENAME COLUMN file_type TO document_type;
+
+ALTER TABLE print_jobs
+    ADD CONSTRAINT chk_number_of_pages CHECK (number_of_pages >= 1 AND number_of_pages <= 500),
+    ADD CONSTRAINT chk_number_of_copies CHECK (number_of_copies >= 1 AND number_of_copies <= 50);
 
 ALTER TABLE print_jobs
     ADD COLUMN total_pages INT NOT NULL DEFAULT 1 AFTER number_of_copies,
