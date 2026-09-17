@@ -10,6 +10,21 @@ All notable changes are documented here following [Keep a Changelog](https://kee
 
 ---
 
+## [1.6.0] — Phase 11 — 2026-09-17
+
+### Phase 11 — GitHub Webhook Integration ✅
+#### Added
+- **`Jenkinsfile` Triggers**: Added `githubPush()` trigger and fallback `pollSCM('H/2 * * * *')` for offline/firewalled lab environments.
+- **`GITHUB_WEBHOOK.md`**: Comprehensive lab specification covering:
+  - Automated trigger architecture (`git push` ➔ GitHub ➔ Webhook ➔ Jenkins ➔ Pipeline).
+  - Detailed explanation of `localhost` limitations in institutional networks.
+  - Practical student-lab exposure methods (Ngrok tunnels, Cloudflare tunnels, LocalTunnel, and SCM polling).
+  - Step-by-step Jenkins and GitHub configuration.
+  - End-to-end verification and quality gate deployment guard walkthrough.
+  - Troubleshooting guide for common errors (HTTP 403, trailing slashes, CSRF).
+
+---
+
 ## [1.5.0] — Phase 7 — 2026-09-17
 
 ### Phase 7 — Complete Frontend & End-to-End Testing ✅

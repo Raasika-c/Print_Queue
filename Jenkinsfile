@@ -12,6 +12,13 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    triggers {
+        // Trigger on GitHub Webhook push payload
+        githubPush()
+        // Lab fallback: Periodic SCM polling for offline/isolated lab networks
+        pollSCM('H/2 * * * *')
+    }
+
     environment {
         APP_NAME = 'digital-print-queue'
         DOCKER_IMAGE = "digital-print-queue:${env.BUILD_NUMBER}"
