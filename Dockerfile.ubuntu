@@ -1,0 +1,50 @@
+# ==============================================================================
+# Base-Image Comparison Experiment: Ubuntu LTS Variant
+# Base Image: Eclipse Temurin Java 21 (Ubuntu 22.04 LTS Jammy)
+# Characteristics: Full GNU C library (glibc), maximum enterprise compatibility
+# ==============================================================================
+
+# Build Stage
+FROM maven:3.9.6-eclipse-temurin-21-jammy AS builder
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# Runtime Stage
+FROM eclipse-temurin:21-jre-jammy AS runtime
+
+LABEL maintainer="DevOps Team <devops@digitalprint.com>" \
+      project="Digital Printing Queue Management System" \
+      variant="Ubuntu Jammy LTS (glibc)"
+
+# Install curl and fonts for document rendering
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl fontconfig && \
+    rm -rf /var/lib/apt/lists/*
+
+# Security: Non-root user and group
+RUN groupadd -g 10001 appgroup && \
+    useradd -u 10001 -g appgroup -m -s /bin/bash appuser
+
+WORKDIR /app
+
+RUN mkdir -p /app/uploads && \
+    chown -R appuser:appgroup /app
+
+VOLUME ["/app/uploads"]
+
+COPY --from=builder --chown=appuser:appgroup /build/target/digital-print-queue-1.0.0.jar app.jar
+
+USER appuser:appgroup
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \
+    SPRING_PROFILES_ACTIVE="docker"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

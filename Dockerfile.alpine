@@ -1,0 +1,48 @@
+# ==============================================================================
+# Base-Image Comparison Experiment: Alpine Linux Variant
+# Base Image: Eclipse Temurin Java 21 (Alpine Linux 3.19)
+# Characteristics: Ultra-lightweight, musl libc, minimal CVE attack surface
+# ==============================================================================
+
+# Build Stage
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# Runtime Stage
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+LABEL maintainer="DevOps Team <devops@digitalprint.com>" \
+      project="Digital Printing Queue Management System" \
+      variant="Alpine Linux (musl libc)"
+
+# Install curl for health checking via apk
+RUN apk add --no-cache curl
+
+# Security: Create non-root system user and group
+RUN addgroup -g 10001 -S appgroup && \
+    adduser -u 10001 -S appuser -G appgroup
+
+WORKDIR /app
+
+RUN mkdir -p /app/uploads && \
+    chown -R appuser:appgroup /app
+
+VOLUME ["/app/uploads"]
+
+COPY --from=builder --chown=appuser:appgroup /build/target/digital-print-queue-1.0.0.jar app.jar
+
+USER appuser:appgroup
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom" \
+    SPRING_PROFILES_ACTIVE="docker"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

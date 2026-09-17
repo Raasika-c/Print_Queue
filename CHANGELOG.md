@@ -10,6 +10,23 @@ All notable changes are documented here following [Keep a Changelog](https://kee
 
 ---
 
+## [1.7.0] — Phase 12 — 2026-09-17
+
+### Phase 12 — Docker Containerization ✅
+#### Added
+- **Multi-Stage `Dockerfile`**: Multi-stage build separating builder (`maven:3.9.6-eclipse-temurin-21-jammy`) from non-root runtime (`eclipse-temurin:21-jre-jammy`) with health check and memory optimization.
+- **Base-Image Comparison Experiment**:
+  - `Dockerfile.alpine`: Lightweight musl libc variant (~185 MB).
+  - `Dockerfile.ubuntu`: Full glibc compatibility variant (~360 MB).
+- **Docker Compose (`docker-compose.yml`)**:
+  - Microservice composition with `app` (port 8080) and `mysql:8.0` (port 3306).
+  - Configured healthcheck dependencies (`service_healthy`).
+  - Persistent volume `printqueue_uploads` ensuring zero data loss across container recreation.
+  - Dedicated isolated bridge network `printqueue_network`.
+- **`DOCKER.md`**: Complete operational manual documenting all 15 core Docker CLI commands, base-image comparative analysis, persistence verification, and health check validation.
+
+---
+
 ## [1.6.0] — Phase 11 — 2026-09-17
 
 ### Phase 11 — GitHub Webhook Integration ✅
