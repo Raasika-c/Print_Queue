@@ -148,10 +148,10 @@ mvn surefire-report:report
 | `PrinterControllerTest` | Level 4 — REST API / Printer Control | 2 | ✅ |
 | `AdminControllerTest` | Level 4 — REST API / Admin Authorization | 4 | ✅ |
 | `FrontendPagesIntegrationTest` | Level 5 — Frontend Availability (13 Pages) | 14 | ✅ |
-| `PrintQueueE2ETest` | Level 5 — End-to-End User Journeys | 9 | ✅ |
-| **TOTAL AUTOMATED REGRESSION SUITE** | | **118** | ✅ **100% PASSED** |
+| `PrintQueueE2ETest` | Level 5 — End-to-End User Journeys | 11 | ✅ |
+| **TOTAL AUTOMATED REGRESSION SUITE** | | **120** | ✅ **100% PASSED** |
 
-> Complete QA details and test matrix documented in [QA_REPORT.md](QA_REPORT.md).
+> Complete QA details and test matrix documented in [FINAL_TEST_REPORT.md](FINAL_TEST_REPORT.md) and [QA_REPORT.md](QA_REPORT.md).
 
 ---
 

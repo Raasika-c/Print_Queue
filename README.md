@@ -14,7 +14,7 @@ A real, working, full-stack web application that manages a digital print job que
 - **Virtual Hardware Simulation** — Non-blocking background printer (`PRINTER-01`) with realistic page-by-page simulation, progress percentage, and deterministic FSM states (`IDLE`, `PRINTING`, `PAUSED`, `ERROR`, `OFFLINE`).
 - **Admin Management & Audit Trail** — Centralized administration console, 10-metric real-time statistics dashboard, priority override, job cancellation/retry, and `PrintJobHistory` lifecycle auditing.
 - **13 Complete Frontend Pages** — Responsive Bootstrap 5 UI connected to real backend endpoints (`index.html`, `login.html`, `register.html`, `dashboard.html`, `submit-job.html`, `my-jobs.html`, `job-details.html`, `queue.html`, `admin-dashboard.html`, `admin-queue.html`, `users.html`, `printer.html`, `error.html`).
-- **Comprehensive Quality Assurance** — 118 automated tests across a 5-tier test pyramid (100% pass rate, zero failures).
+- **Comprehensive Quality Assurance** — 120 automated tests across a 5-tier test pyramid (100% pass rate, zero failures).
 - **Complete Integrated DevOps Pipeline** — Git ➔ GitHub Webhook ➔ 11-Stage Jenkins Pipeline ➔ Quality Gate ➔ Docker Multi-stage ➔ Ansible Automation ➔ Actuator Health Check.
 
 ---
@@ -206,7 +206,7 @@ DEVELOPER ──► GIT ──► GITHUB ──► WEBHOOK ──► JENKINS
                                   (http://localhost:8080)
 ```
 
-> **Strict Quality Gate Rule**: If any compilation error or any of the 118 automated tests fail, the pipeline immediately halts. Packaging, Docker image generation, and Ansible container deployment are strictly blocked.
+> **Strict Quality Gate Rule**: If any compilation error or any of the 120 automated tests fail, the pipeline immediately halts. Packaging, Docker image generation, and Ansible container deployment are strictly blocked.
 
 ---
 
@@ -215,10 +215,14 @@ DEVELOPER ──► GIT ──► GITHUB ──► WEBHOOK ──► JENKINS
 | Document | Purpose |
 |----------|---------|
 | [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md) | Single Source of Truth & Architecture Invariants |
-| [FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) | Feature traceability matrix (F-001 through F-026) |
+| [FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) | Feature traceability matrix (F-001 through F-027) |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System design, component diagrams, & database schema |
 | [DEVOPS_PIPELINE.md](DEVOPS_PIPELINE.md) | Complete End-to-End DevOps Pipeline & Quality Gate Guide |
-| [QA_REPORT.md](QA_REPORT.md) | Automated QA & 118-Test Regression Report |
+| [FINAL_TEST_REPORT.md](FINAL_TEST_REPORT.md) | Final QA Audit & 120-Test Regression Report |
+| [EXPERIMENT_MAPPING.md](EXPERIMENT_MAPPING.md) | 23IT723 Laboratory Syllabus to Codebase Mapping |
+| [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | 10–15 Minute Examiner Demonstration Script |
+| [VIVA_QUESTIONS.md](VIVA_QUESTIONS.md) | 105 Technical Viva Questions & Detailed Answers |
+| [QA_REPORT.md](QA_REPORT.md) | Automated QA & Test Pyramid Report |
 | [TESTING.md](TESTING.md) | Testing pyramid hierarchy & command reference |
 | [DOCKER.md](DOCKER.md) | Docker containerization, volume persistence, & OS comparison |
 | [ANSIBLE.md](ANSIBLE.md) | Ansible automation, idempotency, & playbook execution |

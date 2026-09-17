@@ -248,6 +248,11 @@ class PrintQueueE2ETest {
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalJobs").isNotEmpty());
+
+        // Admin cancels test job to maintain clean queue state
+        mockMvc.perform(put("/api/admin/jobs/" + adminJobId + "/cancel")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -281,5 +286,106 @@ class PrintQueueE2ETest {
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IDLE"));
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("E2E-10: Complete User Workflow with Print Simulation to Completion")
+    void testCompletePrintCycleToCompletion() throws Exception {
+        // Step 1: Submit new document with options
+        MockMultipartFile docFile = new MockMultipartFile(
+                "file", "final_exam.pdf", "application/pdf", "Final Exam Content".getBytes()
+        );
+        MockMultipartFile jobDetails = new MockMultipartFile(
+                "jobDetails", "", "application/json",
+                "{\"numberOfPages\":1,\"numberOfCopies\":1,\"priority\":\"HIGH\",\"colorMode\":\"BLACK_WHITE\",\"paperSize\":\"A4\",\"orientation\":\"PORTRAIT\",\"duplex\":false}".getBytes()
+        );
+
+        MvcResult submitResult = mockMvc.perform(multipart("/api/jobs")
+                        .file(docFile).file(jobDetails)
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        JsonNode json = objectMapper.readTree(submitResult.getResponse().getContentAsString());
+        Long simulationJobId = json.get("id").asLong();
+        String jobNumber = json.get("jobNumber").asText();
+        assertThat(jobNumber).isNotEmpty();
+        assertThat(json.get("totalPages").asInt()).isEqualTo(1);
+
+        // Step 2: Receive queue position and track initial status (SUBMITTED)
+        mockMvc.perform(get("/api/jobs/" + simulationJobId)
+                        .header("Authorization", "Bearer " + userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUBMITTED"))
+                .andExpect(jsonPath("$.queuePosition").value(1));
+
+        // Step 3: Admin starts printer
+        mockMvc.perform(post("/api/printer/start")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        // Step 4: Wait for simulation thread (1 second per page) to finish
+        boolean isCompleted = false;
+        for (int i = 0; i < 10; i++) {
+            Thread.sleep(500);
+            MvcResult checkResult = mockMvc.perform(get("/api/jobs/" + simulationJobId)
+                            .header("Authorization", "Bearer " + userToken))
+                    .andReturn();
+            JsonNode statusJson = objectMapper.readTree(checkResult.getResponse().getContentAsString());
+            String curStatus = statusJson.get("status").asText();
+            if ("COMPLETED".equals(curStatus)) {
+                isCompleted = true;
+                assertThat(statusJson.get("progressPercentage").asInt()).isEqualTo(100);
+                break;
+            }
+        }
+
+        assertThat(isCompleted).as("Print simulation should transition job to COMPLETED").isTrue();
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("E2E-11: Complete Admin Navigation & Workflow")
+    void testCompleteAdminWorkflow() throws Exception {
+        // Admin Dashboard: View Users
+        mockMvc.perform(get("/api/admin/users")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        // Admin Dashboard: View Jobs
+        mockMvc.perform(get("/api/admin/jobs")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        // Admin Dashboard: View Queue
+        mockMvc.perform(get("/api/queue")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        // Admin Dashboard: View Printer Status & Controls
+        mockMvc.perform(get("/api/printer/status")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("PRINTER-01"));
+
+        // Admin Dashboard: View Statistics
+        mockMvc.perform(get("/api/admin/statistics")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalUsers").isNumber())
+                .andExpect(jsonPath("$.totalJobs").isNumber())
+                .andExpect(jsonPath("$.completedJobs").isNumber());
+
+        // Admin: View Job History
+        if (testJobId != null) {
+            mockMvc.perform(get("/api/jobs/" + testJobId + "/history")
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").isArray());
+        }
     }
 }

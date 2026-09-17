@@ -10,6 +10,23 @@ All notable changes are documented here following [Keep a Changelog](https://kee
 
 ---
 
+## [2.0.0] — Phase 15 — 2026-09-17
+
+### Phase 15 — Final Project Validation and Practical Preparation ✅
+#### Added
+- **Final Test Report & Quality Audit (`FINAL_TEST_REPORT.md`)**:
+  - Full audit of all 120 passing automated tests across 5 tiers (0 failures, 0 skipped).
+  - Validation of complete user print journey to completion (`E2E-10`) and full admin dashboard navigation (`E2E-11`).
+  - Transparent verification matrix separating live host verification from student lab instructions.
+- **Syllabus Experiment Mapping Manual (`EXPERIMENT_MAPPING.md`)**:
+  - Direct mapping of all 11 laboratory experiments in 23IT723 to project features, files, exact CLI commands, terminal outputs, and viva explanations.
+- **10–15 Minute Practical Demonstration Script (`DEMO_SCRIPT.md`)**:
+  - Complete timed examiner presentation guide covering Application, Git, Testing, Docker, Ansible, and Jenkins.
+- **Comprehensive Viva Voce Question Bank (`VIVA_QUESTIONS.md`)**:
+  - 105 in-depth technical questions with detailed model answers across 9 core engineering categories.
+
+---
+
 ## [1.9.0] — Phase 14 — 2026-09-17
 
 ### Phase 14 — Complete Integrated DevOps System & Quality Gate ✅
