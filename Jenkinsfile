@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'Java21'
-        maven 'Maven3'
-    }
-
     options {
         timeout(time: 30, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
