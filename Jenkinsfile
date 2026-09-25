@@ -151,7 +151,7 @@ pipeline {
                     } else {
                         bat '''
                         where ansible-playbook >nul 2>nul
-                        if %ERRORLEVEL% EQU 0 (
+                        if not errorlevel 1 (
                             ansible-playbook -i ansible/inventory.ini ansible/site.yml
                         ) else (
                             echo Ansible not in PATH; utilizing Docker Compose direct orchestrator...
@@ -167,12 +167,14 @@ pipeline {
         stage('Health Check') {
             steps {
                 echo '=== Stage 11: Automated Post-Deployment Health Verification ==='
-                sleep(time: 15, unit: 'SECONDS')
-                script {
-                    if (isUnix()) {
-                        sh "curl --fail --retry 5 --retry-delay 5 http://localhost:${APP_PORT}/actuator/health || exit 1"
-                    } else {
-                        bat "powershell -Command \"Invoke-RestMethod -Uri http://localhost:${APP_PORT}/actuator/health\""
+                retry(6) {
+                    sleep(time: 10, unit: 'SECONDS')
+                    script {
+                        if (isUnix()) {
+                            sh "curl --fail http://localhost:${APP_PORT}/actuator/health || exit 1"
+                        } else {
+                            bat "powershell -Command \"$ErrorActionPreference = 'Stop'; Invoke-RestMethod -Uri http://localhost:${APP_PORT}/actuator/health\""
+                        }
                     }
                 }
             }
@@ -183,7 +185,6 @@ pipeline {
         always {
             echo '=== Publishing Surefire Automated Test Results ==='
             junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
-            cleanWs deleteDirs: true, notFailBuild: true, patterns: [[pattern: 'uploads/**', type: 'EXCLUDE']]
         }
         success {
             echo '🎉 Complete DevOps Pipeline Succeeded! Application tested, containerized, orchestrated, and verified UP.'
