@@ -9,7 +9,7 @@ echo.
 docker info >nul 2>&1
 if %errorlevel% equ 0 (
     echo Stopping Docker Compose containers...
-    docker-compose down
+    docker compose down
     echo [PASS] Containers stopped. Persistent volume 'printqueue_uploads' preserved.
 ) else (
     echo Stopping local Java instances on port 8080...

@@ -9,7 +9,7 @@ echo ======================================================
 echo.
 
 :: 1. Check if application is already healthy on Port 8080
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-RestMethod -Uri 'http://localhost:8080/actuator/health' -TimeoutSec 2; if ($r.status -eq 'UP') { exit 0 } else { exit 1 } } catch { exit 1 }" >nul 2>&1
+curl --fail --silent http://localhost:8080/actuator/health >nul 2>&1
 if %errorlevel% equ 0 (
     echo [INFO] Digital Print Queue is already running and healthy on Port 8080!
     goto SHOW_URLS
@@ -20,7 +20,7 @@ docker info >nul 2>&1
 if %errorlevel% equ 0 (
     echo [1/3] Docker engine detected. Starting containers via Docker Compose...
     docker volume create printqueue_uploads >nul 2>&1
-    docker-compose up -d
+    docker compose up -d
     if %errorlevel% neq 0 (
         echo [ERROR] Failed to start Docker Compose containers.
         pause
@@ -39,7 +39,7 @@ if %errorlevel% equ 0 (
         goto SHOW_URLS
     )
     <nul set /p=.
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-RestMethod -Uri 'http://localhost:8080/actuator/health' -TimeoutSec 2; if ($r.status -eq 'UP') { exit 0 } else { exit 1 } } catch { exit 1 }" >nul 2>&1
+    curl --fail --silent http://localhost:8080/actuator/health >nul 2>&1
     if %errorlevel% equ 0 (
         echo.
         echo [3/3] Application Actuator reports status: UP!
