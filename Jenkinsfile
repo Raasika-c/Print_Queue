@@ -168,7 +168,7 @@ pipeline {
                         if (isUnix()) {
                             sh "curl --fail http://localhost:${APP_PORT}/actuator/health || exit 1"
                         } else {
-                            bat "powershell -Command \"$ErrorActionPreference = 'Stop'; Invoke-RestMethod -Uri http://localhost:${APP_PORT}/actuator/health\""
+                            bat "curl --fail http://localhost:${APP_PORT}/actuator/health || exit 1"
                         }
                     }
                 }
